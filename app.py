@@ -34,19 +34,19 @@ def ip_address(ip):
     query_type = "BTREE"
     key = "xxxxxxxxxxxxx"
 
-    db_searcher = DbSearcher(database_path, query_type, key)
+    #db_searcher = DbSearcher(database_path, query_type, key)
 
     try:
-        region = db_searcher.search(ip)
+        #region = db_searcher.search(ip)
 
-        return region
+        return '中国'
 
     except Exception as e:
         print(f"An error occurred during the search: {e}")
         return e
 
-    finally:
-        db_searcher.close()
+    # finally:
+    #     db_searcher.close()
 
 #拦截国外ip
 def decide_c(region):
@@ -239,16 +239,7 @@ def login():
     else:
         return render_template("dataA.html")
 
-@app.route("/show_quotas",methods=["GET"])
-def show_quotas():
-    ip_ad = request.remote_addr
-    if ip_address(ip_ad)==True:
-        if "username" not in session:
-            return redirect("/login")
-        username = session["username"]
-        return userconfig.get_quotas(username)
-    else:
-        return render_template("404h.html")
+
 
 
 @app.route("/onlinepy")
