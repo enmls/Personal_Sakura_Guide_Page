@@ -1,0 +1,62 @@
+.chat-container {
+	max-width: 85%;
+	margin: 0 auto;
+	padding: 20px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+	border-radius: 5px;
+}
+
+.header h1 {
+	font-size: 24px;
+	color: #333;
+	margin: 0;
+}
+
+.chat-box {
+	height: 60%;
+	overflow-y: scroll;
+	margin-top: 20px;
+	background-color: #FFFAFA;
+	padding: 10px;
+	border-radius: 5px;
+}
+
+.input-box {
+	margin-top: 40px;
+}
+
+input[type="text"] {
+	width: calc(100% - 70px);
+	padding: 10px;
+	outline: none;
+	border: none;
+	border-radius: 5px;
+}
+
+button[type="submit"] {
+	background-color: #008CBA;
+	color: white;
+	border: none;
+	padding: 10px 15px;
+	border-radius: 5px;
+	cursor: pointer;
+	margin-left: 10px;
+}
+
+.message-from-gpt {
+	background-color: #fff;
+	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 5px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+.message-from-user {
+	background-color: #b4caf4;
+	color: #13161b;
+	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 5px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+

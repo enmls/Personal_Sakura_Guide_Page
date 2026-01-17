@@ -1,0 +1,17 @@
+div span {
+  background:
+    linear-gradient(90deg,rgb(239, 174, 194),rgb(229, 68, 130)) no-repeat right bottom;
+  background-size: 0 3px;
+  transition: background-size 1s;
+  line-height: 2;
+}
+
+div span:hover {
+    background-size: 100% 2px;
+    background-position-x: left;
+}
+
+canvas {
+    padding:0;
+    margin:0;
+}

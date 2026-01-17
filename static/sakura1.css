@@ -1,0 +1,10 @@
+/* static/assets/css/sakura.css */
+#sakura {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* 确保背景在内容下方 */
+    pointer-events: none; /* 让鼠标事件穿透背景，不影响页面交互 */
+}
