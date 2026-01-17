@@ -2,7 +2,7 @@
 
 ## 📖 项目简介
 
-本项目是基于 [Personal_Sakura_Guide_Page](原项目链接) 使用 **Flask** 框架重构的 Web 版本。
+本项目是基于 [Personal_Sakura_Guide_Page]([原项目链接](https://github.com/NianBroken/Personal_Sakura_Guide_Page)) 使用 **Flask** 框架重构的 Web 版本。
 
 ---
 
