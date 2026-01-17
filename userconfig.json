@@ -1,8 +1,9 @@
 {
-    "jihu@163.com": {
-        "password": "jihujihu",
+    "test@163.com": {
+        "password": "testtest",
         "quota": 10100,
         "visited": 191,
         "remark": "备注"
     }
+
 }
