@@ -1,4 +1,4 @@
-<img width="893" height="844" alt="image" src="https://github.com/user-attachments/assets/7bece367-6a9a-4de9-b41a-05f30a8e10fd" /># Personal_Sakura_Guide_web
+# Personal_Sakura_Guide_web
 
 ## 📖 项目简介
 
