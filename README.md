@@ -2,8 +2,7 @@
 
 ## 📖 项目简介
 
-本项目是基于 [Personal_Sakura_Guide_Page]([原项目链接](https://github.com/NianBroken/Personal_Sakura_Guide_Page)) 使用 **Flask** 框架重构的 Web 版本。
-
+本项目是 **[Personal_Sakura_Guide_Page](https://github.com/NianBroken/Personal_Sakura_Guide_Page)** 的 一些扩展，使用 **Flask** 框架的web扩展版本。
 ---
 
 ## ✨ 新增功能
@@ -29,20 +28,13 @@
   - 需要对应的解密密钥（key）
 
 ### ⚙️ 配置方法
-1. 获取纯真 IP 数据库文件(官网),pip install czdb-searcher
+1. 获取纯真 IP 数据库文件(cz88_public_v4.czdb),再安装pip install czdb-searcher,解掉ip_address注释
 2. 将 `cz88_public_v4.czdb` 文件放置于指定目录
 3. 在配置文件中设置正确的密钥
 4. 重启应用生效
 
 ---
 
-## 🛠️ 技术栈
-
-```bash
-Python 3.x
-Flask
-HTML/CSS/JavaScript
-纯真 IP 数据库
 
 <img width="873" height="769" alt="image" src="https://github.com/user-attachments/assets/1bcb0c56-5563-470d-a98f-ebd3fd001e4b" />
 
