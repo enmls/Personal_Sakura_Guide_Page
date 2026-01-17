@@ -79,7 +79,7 @@ def index():
 def tree():
     ip_ad = request.remote_addr
     if ip_address(ip_ad)==True:
-        return render_template('tree.html')
+        return render_template('404h.html')
     else:
         return render_template("404h.html")
 
