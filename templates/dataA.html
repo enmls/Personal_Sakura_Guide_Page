@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件云传</title>
+    <style>
+        :root {
+            --primary-color: #6366f1; /* 靛蓝色 */
+            --primary-hover: #4f46e5;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* 顶部导航 */
+        header {
+            max-width: 900px;
+            margin: 0 auto 30px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .brand svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* 主容器 */
+        main {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 上传区域 */
+        .upload-zone {
+            background: var(--card-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--primary-color);
+            background-color: #eef2ff;
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .upload-zone:hover .upload-icon {
+            transform: translateY(-5px);
+            opacity: 1;
+        }
+
+        .upload-text h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .upload-text p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* 统计卡片 */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-info h4 {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .stat-info span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* 文件列表区域 */
+        .file-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .clear-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .clear-btn:hover {
+            background: #fee2e2;
+            color: var(--danger-color);
+            border-color: #fecaca;
+        }
+
+        .file-list {
+            list-style: none;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: grid;
+            grid-template-columns: auto 2fr 1fr 1fr auto;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 16px;
+            transition: background 0.2s;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .file-size {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .file-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .btn-download {
+            background: #e0e7ff;
+            color: var(--primary-color);
+        }
+        .btn-download:hover { background: #c7d2fe; }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: var(--danger-color);
+        }
+        .btn-delete:hover { background: #fecaca; }
+
+        /* 空状态 */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            display: none;
+        }
+        .empty-state.active {
+            display: block;
+        }
+
+        /* 上传进度遮罩 */
+        .upload-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            display: none;
+        }
+        .upload-overlay.active { display: flex; }
+
+        .progress-bar {
+            width: 200px;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.2s;
+        }
+
+        /* Toast 提示框 */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 250px;
+            animation: slideLeft 0.3s ease;
+        }
+
+        .toast.success { border-left-color: var(--success-color); }
+        .toast.error { border-left-color: var(--danger-color); }
+
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 640px) {
+            .file-item {
+                grid-template-columns: auto 1fr auto;
+                grid-template-rows: auto auto;
+                gap: 8px;
+            }
+            .file-size, .file-date {
+                text-align: left;
+                font-size: 0.75rem;
+            }
+            .file-size { grid-column: 2; grid-row: 2; }
+            .file-date { grid-column: 2; grid-row: 3; }
+            .file-actions { grid-column: 3; grid-row: 1 / span 3; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .clear-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span>云传</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- 统计区域 -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <h4>文件总数</h4>
+                    <span id="fileCount">0</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #d1fae5; color: var(--success-color);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <h4>总容量</h4>
+                    <span id="totalSize">0 B</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 上传区域 -->
+        <div class="upload-zone" id="dropZone">
+            <input type="file" id="fileInput" multiple>
+
+            <div class="upload-overlay" id="uploadOverlay">
+                <h3>正在上传...</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p style="margin-top: 8px; font-size: 0.9rem; color: #666;" id="uploadStatus">0%</p>
+            </div>
+
+            <div class="upload-content">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <div class="upload-text">
+                    <h3>点击或拖拽文件到这里上传</h3>
+                    <p>支持任意格式文件，最大1G</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文件列表区域 -->
+        <section class="file-section">
+            <div class="section-header">
+                <h2>我的文件</h2>
+                <button class="clear-btn" id="clearBtn" style="display: none;">清空列表</button>
+            </div>
+
+            <ul class="file-list" id="fileList">
+                <!-- 文件项将通过 JS 插入 -->
+            </ul>
+
+            <div class="empty-state active" id="emptyState">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <p>暂无文件，快去上传吧！</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast-container"></div>
+
+    <script>
+        // DOM 元素引用
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const emptyState = document.getElementById('emptyState');
+        const fileCountEl = document.getElementById('fileCount');
+        const totalSizeEl = document.getElementById('totalSize');
+        // clearBtn 虽然被隐藏了，但移除它的监听器以防万一
+        const clearBtn = document.getElementById('clearBtn');
+        const uploadOverlay = document.getElementById('uploadOverlay');
+        const progressFill = document.getElementById('progressFill');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const toastContainer = document.getElementById('toast-container');
+
+        // 状态数据
+        let filesData = [];
+
+        // 初始化
+        function init() {
+            loadFilesFromServer(); // 页面加载时获取文件
+
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', (e) => {
+                handleUpload(e.target.files);
+                fileInput.value = '';
+            });
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                handleUpload(e.dataTransfer.files);
+            });
+        }
+
+        // 从服务器获取文件列表
+        async function loadFilesFromServer() {
+            try {
+                const response = await fetch('/get_files');
+                if (!response.ok) throw new Error('获取列表失败');
+
+                const serverFiles = await response.json();
+
+                // map 里面接收一个参数 f
+                filesData = serverFiles.map(f => {
+                    // --- 必须把计算逻辑移到这里 ---
+                    // 这样每次循环都会为当前的 f 创建一个新的 dateObj
+
+                    // 1. 创建日期对象
+                    const dateObj = new Date(f.time * 1000);
+
+                    // 2. 手动拼接格式化字符串 (YYYY-MM-DD HH:mm)
+                    // 注意：我在 day 和 hour 之间加了个空格，否则会连在一起
+                    const year = dateObj.getFullYear();
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const hour = String(dateObj.getHours()).padStart(2, '0');
+                    const minute = String(dateObj.getMinutes()).padStart(2, '0');
+                    const dateStr = `${year}-${month}-${day} ${hour}:${minute}`;
+                    // -------------------------
+
+                    return {
+                        id: f.name + f.time,
+                        name: f.name,
+                        size: f.size,
+                        date: dateObj,
+                        dateStr: dateStr,
+                        type: 'unknown',
+                        isServerFile: true
+                    };
+                });
+
+                renderFileList();
+                updateStats();
+            } catch (error) {
+                console.error('加载文件失败:', error);
+                showToast('加载文件列表失败', 'error');
+            }
+        }
+
+
+        // 处理上传
+        async function handleUpload(files) {
+            if (!files || files.length === 0) return;
+
+            const file = files[0];
+             // 【关键修改 3】前端预先检查文件大小 (1GB = 1073741824 字节)
+            const MAX_SIZE = 1 * 1024 * 1024 * 1024;
+
+            if (file.size > MAX_SIZE) {
+                showToast(`文件 "${file.name}" 超过 1GB 限制，无法上传`, 'error');
+                return; // 直接结束，不执行上传
+            }
+            uploadOverlay.classList.add('active');
+            progressFill.style.width = '0%';
+            uploadStatus.innerText = '0%';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload', true);
+
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressFill.style.width = percentComplete + '%';
+                    uploadStatus.innerText = Math.floor(percentComplete) + '%';
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    showToast(`上传成功: ${response.filename}`, 'success');
+                    uploadOverlay.classList.remove('active');
+                    loadFilesFromServer();
+                } else if(xhr.status === 413) {
+                    const response = JSON.parse(xhr.responseText);
+                    showToast(response.error || '文件过大', 'error');
+                    uploadOverlay.classList.remove('active');
+                } else {
+                    try {
+                        const err = JSON.parse(xhr.responseText);
+                        showToast('上传失败: ' + (err.error || xhr.statusText), 'error');
+                    } catch (e) {
+                        showToast('上传失败: 未知错误', 'error');
+                    }
+                    uploadOverlay.classList.remove('active');
+                }
+            };
+
+            xhr.onerror = function() {
+                showToast('网络错误，上传失败', 'error');
+                uploadOverlay.classList.remove('active');
+            };
+
+            xhr.send(formData);
+        }
+
+        // 渲染列表
+        function renderFileList() {
+            fileList.innerHTML = '';
+            if (filesData.length === 0) {
+                emptyState.classList.add('active');
+                return;
+            } else {
+                emptyState.classList.remove('active');
+            }
+
+            filesData.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                let iconSvg = getIconForType(item.type);
+
+                const downloadUrl = `/download/${encodeURIComponent(item.name)}`;
+
+                // 注意：onclick 内部调用 deleteServerFile，参数需要加引号
+                li.innerHTML = `
+                    <div class="file-icon">${iconSvg}</div>
+                    <div class="file-info">
+                        <span class="file-name" title="${item.name}">${item.name}</span>
+                    </div>
+                    <div class="file-size">${formatSize(item.size)}</div>
+                    <div class="file-date">${item.dateStr}</div>
+                    <div class="file-actions">
+                        <a href="${downloadUrl}" class="btn-action btn-download" title="下载">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </a>
+                        <!-- 调用真实的后端删除函数 -->
+                        <button class="btn-action btn-delete" onclick="deleteServerFile('${item.name}')" title="删除">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                fileList.appendChild(li);
+            });
+        }
+
+        // 【核心修改】真实的后端删除逻辑
+        window.deleteServerFile = async function(filename) {
+            // 弹出确认框
+            if(!confirm(`确定要删除文件 "${filename}" 吗？此操作不可恢复。`)) {
+                return;
+            }
+
+            try {
+                // 发送 DELETE 请求给后端
+                // 使用 encodeURIComponent 确保文件名中的特殊字符被正确编码
+                const response = await fetch(`/delete/${encodeURIComponent(filename)}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showToast(result.message || '删除成功', 'success');
+                    // 重新加载列表以反映删除结果
+                    loadFilesFromServer();
+                } else {
+                    const errorData = await response.json();
+                    showToast(errorData.error || '删除失败', 'error');
+                }
+            } catch (error) {
+                console.error('删除请求失败:', error);
+                showToast('网络错误，删除失败', 'error');
+            }
+        }
+
+        function updateStats() {
+            fileCountEl.innerText = filesData.length;
+            const totalBytes = filesData.reduce((acc, curr) => acc + curr.size, 0);
+            totalSizeEl.innerText = formatSize(totalBytes);
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateObj) {
+            if (!dateObj) return '';
+            const date = new Date(dateObj);
+            const now = new Date();
+            if (date.toDateString() === now.toDateString()) {
+                return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            }
+            return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getIconForType(type) {
+            return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let icon = type === 'success'
+                ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success-color)" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+                : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger-color)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        init();
+    </script>
+
+
+</body>
+</html>
